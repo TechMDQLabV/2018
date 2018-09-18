@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <title>VUE Segundos Pasos</title>    
+        <meta charset="UTF-8">        
+        <link rel="stylesheet" href="css/bootstrap.css">                
+        <link rel="stylesheet" href="css/main.css">          
+    </head>
+    <body>
+        <header class="divPadding">
+            <h1 class="text-white">VUE Segundos Pasos - Cuarto TP</h1>
+        </header>
+        <main class="container">
+            <section id="app" class="text-white div_trans8 divPadding"> 
+                <h2>Ingreso de Personal</h2>
+
+                    <div class="form-group">
+                        <label>Nombre </label>
+                        <input id="nombre" type="text" class="form-control" ref="focus" v-model="persona.nombre" placeholder="Nombre" required>
+                    </div>
+    
+                    <div class="form-group">
+                        <label>Edad </label>
+                        <input type="number" class="form-control" v-model="persona.edad" pattern="[0,9]{1,2}" placeholder="Edad" required>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">Sexo</label>
+                        </div>
+                        <div class="form-check form-check-inline">                        
+                            <input type="radio" name="genero" v-model="persona.sexo" class="form-check-input" value="M" checked><label class="form-check-label">Masculino</label>
+                        </div> 
+                        <div class="form-check form-check-inline">                        
+                            <input type="radio" name="genero" v-model="persona.sexo" class="form-check-input" value="F"><label class="form-check-label">Femenino</label>          
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="form-control btn btn-primary" @click="agregar()">Agregar</button>
+                    </div>
+
+                <div class="form-group" v-if="total>0">
+                    <div class="form-check form-check-inline">
+                        <label>Listado</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input type="radio" name="listado" v-model="listado" class="form-check-input" value="T" title="Mostrar Todo el Personal" checked><label class="form-check-label">Todos</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input type="radio" name="listado" v-model="listado" class="form-check-input" value="M" title="Mostrar Personal Masculino"><label class="form-check-label">Masculino</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input type="radio" name="listado" v-model="listado" class="form-check-input" value="F" title="Mostrar Personal Femenino"><label class="form-check-label">Femenino</label>
+                    </div>
+                </div>   
+
+                <p>&nbsp;</p>        
+                <table class="table table-striped text-white" v-if="(total > 0 && listado==='T') || (totalHombres > 0 && listado==='M') || (totalMujeres > 0 && listado==='F')">
+                    <thead>
+                        <tr>
+                            <th width="10%"></th>
+                            <th width="70%">Nombre y Apellido</th>
+                            <th width="10%">Sexo</th>
+                            <th width="10%">Edad</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th></th>
+                            <th>Total: {{total}} - Masculinos: {{totalHombres}} - Femeninos {{totalMujeres}}</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </tfoot>                    
+                    <tbody>
+                        <tr v-for="(persona, index) in personas" :key="index">                    
+                            <template v-if="listado==='T' || listado==persona.sexo">
+                                <td align="right"><a class="btn btn-default" data-toggle="tooltip" v-bind:title='"Eliminar a "+persona.nombre' @click="borrarPersona(persona)"><img src="images/b_del.png" border="0"></a></td>
+                                <td> {{ persona.nombre }}</td>
+                                <td> {{ persona.sexo }}</td>
+                                <td> {{ persona.edad }}</td>
+                            </template>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script>
+            new Vue({
+                el: "#app",
+                data: {
+                    listado: "T",
+                    totalMujeres: 0,
+                    totalHombres: 0,
+                    idInicial: 0,
+                    personas: [],
+                    persona: {
+                        nombre: "",
+                        sexo: "M",
+                        edad: "",
+                    }
+                },
+                computed: {
+                    total() {
+                        return this.personas.length;
+                    }
+                },
+                methods: {
+                    agregar() {
+                        this.personas.push({
+                            id: this.idInicial++,
+                            nombre: this.persona.nombre,
+                            sexo: this.persona.sexo,
+                            edad: this.persona.edad
+                        });
+
+                        if(this.persona.sexo==="M"){
+                            this.totalHombres++;
+                        }
+                        else{
+                            this.totalMujeres++;
+                        }
+                        this.persona.nombre = "";
+                        this.persona.sexo = "M";
+                        this.persona.edad = "";
+                        this.setFocus();
+                    },
+                    borrarPersona(p) {
+                        this.personas = this.personas.filter(persona => persona.id !== p.id);
+                        if(p.sexo==="M"){
+                            this.totalHombres--;
+                        }
+                        else{
+                            this.totalMujeres--;
+                        }
+                    },
+                    setFocus: function()
+                    {
+                        this.$refs.focus.focus();
+                    },                                           
+                }
+            });
+        </script>
+    </body>
+</html>
